@@ -33,8 +33,13 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: SPA fallback for client-side routing
-        run: cp dist/index.html dist/404.html
+      - name: Static entry points for each route (avoids 404 on refresh)
+        run: |
+          for route in services faq contact privacy-policy terms; do
+            mkdir -p "dist/$route"
+            cp dist/index.html "dist/$route/index.html"
+          done
+          cp dist/index.html dist/404.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
