@@ -1,8 +1,15 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Outlet, Link, createRootRouteWithContext, useRouter } from "@tanstack/react-router";
+import {
+  Outlet,
+  Link,
+  createRootRouteWithContext,
+  useRouter,
+  HeadContent,
+} from "@tanstack/react-router";
 
 import { Nav } from "../components/site/Nav";
 import { Footer } from "../components/site/Footer";
+import { pageHead, SITE_NAME, SITE_URL, SITE_EMAIL } from "../lib/site";
 
 function NotFoundComponent() {
   return (
@@ -62,6 +69,39 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  head: () => {
+    const head = pageHead({
+      path: "/",
+      title: `${SITE_NAME} | Broadband, Internet & Cable Connection Assistance`,
+      description:
+        "Explore broadband, internet and cable TV options available in your area. Net Point simplifies coverage checks, option guidance and the entire connection request process.",
+    });
+    return {
+      ...head,
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify([
+            {
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: SITE_NAME,
+              url: SITE_URL,
+              email: SITE_EMAIL,
+              description:
+                "Independent assistance with broadband, internet and cable TV connection requests.",
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: SITE_NAME,
+              url: SITE_URL,
+            },
+          ]),
+        },
+      ],
+    };
+  },
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
@@ -72,6 +112,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <HeadContent />
       <Nav />
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
